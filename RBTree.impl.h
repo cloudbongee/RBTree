@@ -1,7 +1,5 @@
 #include "RBTree.h"
 
-#include <iostream>
-
 // RBTree library by Jaime Meyer Beilis Michel.
 // Last edit: 18 May 2025
 // with a small headache.
@@ -138,7 +136,6 @@ V Red_black_tree<K, V>::find(K k) {
     Node* n = root;
     // while node isn't at the end of the tree
     while (n != NIL) {
-        std::cout << n->to_string() << std::endl;
         // otherwise, if key is smaller, then turn left way
         if (k < n->key) {
             n = n->left;

@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+
 // RBTree library by Jaime Meyer Beilis Michel.
 // Last edit: 18 May 2025
 // in a very sweaty summer.
@@ -32,8 +33,16 @@ template <typename K, typename V> struct Red_black_tree {
     // remove:
     // ~ the remove operation takes the node attributed to
     // the key value pair specified by a given k.
-    void remove(const K& k);
+    void remove(const K& k);                                                                                // TODO
 
+    static Red_black_tree<K, V> join(const Red_black_tree<K, V>* T1, const Red_black_tree<K, V>* T2);       // TODO
+
+    static Red_black_tree<K, V> split(const Red_black_tree<K, V>* T);                                       // TODO
+
+    static V previous(const K &k);                                                                          // TODO
+
+    static V next(const K &k);                                                                              // TODO
+    
     // find:
     // ~ the find operation retrieves the associated value to
     // given key k
@@ -100,9 +109,19 @@ template <typename K, typename V> struct Red_black_tree {
         // root node to the tree
         Node* root;
 
+        // insert method:
+        // This overload is a helper function for the original insertion
         static Node* insert(Node* N, const K &k, const V &v);
 
+        // balance_insertion:
+        // This is a helper function to the insert helper method
+        // permits preserving the color invariance of the nodes
         static Node* balance_insertion(Node* N, const K& k);
+
+
+        static Node* remove(Node* N, const K &k);   // TODO
+
+        static Node* balance_removal(Node* N, const K& k);  // TODO
 
         // rotate_right:
         // makes a node rotation, interchanging
