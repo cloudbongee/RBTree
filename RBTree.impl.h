@@ -6,9 +6,14 @@
 // Last edit: 18 May 2025
 // with a small headache.
 
+// Since it makes use of the constexpr
+// This is only available for C++ 17
+
 
 // NODE CODE!! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+template <typename K, typename V>
+typename Red_black_tree<K, V>::Node* Red_black_tree<K, V>::NIL = new Node(K{}, V{}, NULL, NULL, false);
 
 // Constructor overload 1:
 // Creates the default red key value pair node.
@@ -49,9 +54,13 @@ template<typename K, typename V>
 template<typename K, typename V>
 ::Red_black_tree<K,V>::Node::~Node() {
 
-    // deletes self
-    delete key;
-    delete val;
+
+    if constexpr (is_pointer_K && is_destructible_K) {
+        delete key;
+    }
+    if constexpr (is_pointer_V && is_destructible_V) {
+        delete val;
+    }
 
     // this will recursively delete all other nodes
     // by calling deletion method on both sides.
@@ -59,8 +68,51 @@ template<typename K, typename V>
     delete right;
 }
 
+// to_string method:
+// ~ returns the representation (k,v), where k and v are the strings
+// ~ attributed to key and value (whatever they are)
+template<typename K, typename V>
+std::string Red_black_tree<K,V>::Node::to_string() {
+    return "(" + std::to_string(key) + "," + std::to_string(val) + ")";
+}
+
 
 // RED BLACK TREE CODE! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+template<typename K, typename V>
+std::string Red_black_tree<K,V>::to_string(order print) {
+    if (print == INORDER) {
+        return inorder_print(root);
+    }
+    if (print == PREORDER) {
+        return preorder_print(root);
+    }
+    return postorder_print(root);
+
+}
+
+template<typename K, typename V>
+std::string Red_black_tree<K,V>::inorder_print(Node* N) {
+    if (N == NIL) {
+        return "NIL";
+    }
+    return "[" + inorder_print(N->left) + "," + N->to_string() +"," + inorder_print(N->right) + "]";
+}
+
+template<typename K, typename V>
+std::string Red_black_tree<K,V>::preorder_print(Node* N) {
+    if (N == NIL) {
+        return "NIL";
+    }
+    return "["+N->to_string()+","+preorder_print(N->left)+preorder_print(N->right)+"]";
+}
+
+template<typename K, typename V>
+std::string Red_black_tree<K,V>::postorder_print(Node* N) {
+    if (N == NIL) {
+        return "NIL";
+    }
+    return "[" + postorder_print(N->left) + "," + postorder_print(N->right) +  N->to_string() + "]";
+}
 
 
 // Initializer for the red black tree
@@ -99,7 +151,7 @@ V Red_black_tree<K, V>::find(const K &k) {
             n = n->right;
         }
     }
-    return nullptr;
+    return NULL;
 }
 
 
@@ -113,9 +165,9 @@ V Red_black_tree<K, V>::find(const K &k) {
 // makes a node rotation, interchanging
 // left node to the root
 template<typename K, typename V>
-typename Red_black_tree<K, V>::Node Red_black_tree<K, V>::rotate_right(Node* N) {
+typename Red_black_tree<K, V>::Node* Red_black_tree<K, V>::rotate_right(Node* N) {
                             // assuming N as current root.
-    Node w = N->left;       // hold left node
+    Node* w = N->left;       // hold left node
     N->left = w->right;     // make current root's left, left node's right subtree
     w->right = N;           // make held node's right our current root
     return w;               // return held node as rooting tooting root
@@ -125,9 +177,9 @@ typename Red_black_tree<K, V>::Node Red_black_tree<K, V>::rotate_right(Node* N) 
 // makes a node rotation, interchanging
 // right node to the root
 template<typename K, typename V>
-typename Red_black_tree<K, V>::Node Red_black_tree<K, V>::rotate_left(Node* N) {
+typename Red_black_tree<K, V>::Node* Red_black_tree<K, V>::rotate_left(Node* N) {
     // inverse process as right is applied
-    Node w = N->right;
+    Node* w = N->right;
     N->right = w->left;
     w->left = N;
     return w;
@@ -184,38 +236,38 @@ void Red_black_tree<K, V>::interchange_both_children_color(Node *N) {
 // balance method taken from my professor Dr. Kececioglu.
 // Not without studying them before. I promise Dr. K!
 template<typename K, typename V>
-typename Red_black_tree<K, V>::Node Red_black_tree<K, V>::balance_insertion(Node *N, const K& k) {
+typename Red_black_tree<K, V>::Node* Red_black_tree<K, V>::balance_insertion(Node *N, const K& k) {
     // if grandparent color is black but not NIL
     if (N->color == black && N != NIL) {
        // cases 3,4,5,6: parent is left
        if(k < N->key) {
 
-            Node parent = N->left;
+            Node* parent = N->left;
 
             // if parent is red
             if(parent->color == red) {
                 // and both second generation are red
-                if(N->right == red){
+                if(N->right->color == red){
                     // cases 3,4 if either child inserted is right or left and the correspondent
                     // added node is red.
                     if( (k < parent->key && parent->left->color == red) ||
                         (k > parent->key && parent->right->color == red)) {
                         // make parent and uncle black. Pass any red imbalance
                         // to the grandparent.
-                        flip_both_children_color(N);
+                        interchange_both_children_color(N);
                     }
                 }
                 // case 5 is completed if uncle is black, k was added to the left
                 else if( k < parent->key && parent->left->color == red){
                     // then we make parent black
-                    flip_left_color(N);
+                    interchange_left_color(N);
                     // and we rotate grandparent to the right
                     N = rotate_right(N);
                 }
                 // case 6 is completed if uncle is black, k was added to the right
                 else if( k < parent->key && parent->right->color == red){
                     // then we make parent black
-                    flip_right_color(N);
+                    interchange_right_color(N);
                     // and we rotate grandparent to the left
                     N = rotate_left(N);
                 }
@@ -225,23 +277,23 @@ typename Red_black_tree<K, V>::Node Red_black_tree<K, V>::balance_insertion(Node
        // cases 7,8,9,10: parent is right
        else {
 
-            Node parent = N->right;
+            Node* parent = N->right;
             // all the rest are symmetric cases.
             if(parent->color == red) {
-                if(N->left == red){
+                if(N->left->color == red){
                     if( (k < parent->key && parent->left->color == red)
                      || (k > parent->key && parent->right->color == red)) {
-                        flip_both_children_color(N);
+                        interchange_both_children_color(N);
                      }
                 }
                 else if(k > parent->key && parent->right->color == red){
-                    flip_right_color(N);
+                    interchange_right_color(N);
                     N = rotate_left(N);
                 }
                 else if( k < parent->key && parent->left->color == red){
                     // this is a way to mimic previous case balancing!
                     N->right = rotate_right(N->right);
-                    flip_right_color(N);
+                    interchange_right_color(N);
                     N = rotate_left(N);
                 }
             }
@@ -261,16 +313,21 @@ void Red_black_tree<K,V>::insert(const K& k, const V& v) {
 }
 
 template<typename K, typename V>
-typename Red_black_tree<K, V>::Node Red_black_tree<K, V>::insert(Node* N, const K& k, const V& v) {
+typename Red_black_tree<K, V>::Node* Red_black_tree<K, V>::insert(Node* N, const K& k, const V& v) {
     if(N == NIL){
         return new Node(k, v);
-    }else if(N->key == k){
+    }
+    if(N->key == k){
         N->val = v;
-        return v;
-    }else if(N->key < k){
+        return N;
+    }
+    if(N->key < k){
         N->left = insert(N->left, k, v);
-    }else{
+    }
+    else{
         N->left = insert(N->right, k, v);
     }
     return balance_insertion(N, k);
 }
+
+
