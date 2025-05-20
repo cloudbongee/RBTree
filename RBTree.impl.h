@@ -103,7 +103,7 @@ std::string Red_black_tree<K,V>::preorder_print(Node* N) {
     if (N == NIL) {
         return "NIL";
     }
-    return "["+N->to_string()+","+preorder_print(N->left)+preorder_print(N->right)+"]";
+    return "["+N->to_string() + preorder_print(N->left)+preorder_print(N->right)+"]";
 }
 
 template<typename K, typename V>
@@ -111,7 +111,7 @@ std::string Red_black_tree<K,V>::postorder_print(Node* N) {
     if (N == NIL) {
         return "NIL";
     }
-    return "[" + postorder_print(N->left) + "," + postorder_print(N->right) +  N->to_string() + "]";
+    return "[" + postorder_print(N->left) + postorder_print(N->right) +  N->to_string() + "]";
 }
 
 
@@ -134,23 +134,23 @@ Red_black_tree<K, V>::~Red_black_tree() {
 // ~ the find operation retrieves the associated value to
 // ~ given key k (Implemented iteratively)
 template<typename K, typename V>
-V Red_black_tree<K, V>::find(const K &k) {
-    Node n = root;
+V Red_black_tree<K, V>::find(K k) {
+    Node* n = root;
     // while node isn't at the end of the tree
     while (n != NIL) {
-        // if found return value
-        if (n->key == k) {
-            return n->value;
-        }
+        std::cout << n->to_string() << std::endl;
         // otherwise, if key is smaller, then turn left way
-        else if (k < n->key) {
+        if (k < n->key) {
             n = n->left;
         }
         // otherwise turn right way
-        else{
+        else if (k > n->key) {
             n = n->right;
+        }else {
+            return n->val;
         }
     }
+    // BUT THE POINTER SAFETY!!! (I am not sorry)
     return NULL;
 }
 
@@ -317,16 +317,18 @@ typename Red_black_tree<K, V>::Node* Red_black_tree<K, V>::insert(Node* N, const
     if(N == NIL){
         return new Node(k, v);
     }
-    if(N->key == k){
+
+    if(N->key < k){
+        N->right = insert(N->right, k, v);
+    }
+    else if (N->key > k){
+        N->left = insert(N->left, k, v);
+    }
+    else {
         N->val = v;
         return N;
     }
-    if(N->key < k){
-        N->left = insert(N->left, k, v);
-    }
-    else{
-        N->left = insert(N->right, k, v);
-    }
+
     return balance_insertion(N, k);
 }
 

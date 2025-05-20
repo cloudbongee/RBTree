@@ -37,7 +37,7 @@ template <typename K, typename V> struct Red_black_tree {
     // find:
     // ~ the find operation retrieves the associated value to
     // given key k
-    V find(const K& k);
+    V find(K k);
 
     enum order { INORDER, PREORDER, POSTORDER};
     // to_string:
