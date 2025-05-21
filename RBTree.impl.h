@@ -299,16 +299,28 @@ typename Red_black_tree<K, V>::Node* Red_black_tree<K, V>::balance_insertion(Nod
     return N;
 }
 
+template<typename K, typename V>
+typename Red_black_tree<K, V>::Node* Red_black_tree<K, V>::balance_removal(Node* P, Node* C) {
+    return NIL; // TODO (I am sleepy)
+}
 // end of balancing subsection of the functions
 
-// insertion:
 
+// ~~~~~~~~~~~~~~~ Insertion and deletion method of the function:
+
+
+// insert method:
+// The insert method creates a node from key K (type) k and value V (type) v
+// then proceeds to ensure tree balance.
 template<typename K, typename V>
 void Red_black_tree<K,V>::insert(const K& k, const V& v) {
     root = insert(root, k, v);
     root->color = black;
 }
 
+// insert method: (private overload)
+// Follows the typical insertion routine to a binary tree, then returns such result
+// as based on the balancing function.
 template<typename K, typename V>
 typename Red_black_tree<K, V>::Node* Red_black_tree<K, V>::insert(Node* N, const K& k, const V& v) {
     if(N == NIL){
@@ -329,4 +341,62 @@ typename Red_black_tree<K, V>::Node* Red_black_tree<K, V>::insert(Node* N, const
     return balance_insertion(N, k);
 }
 
+// remove method:
+// calls for removal of a node in the tree.
+template<typename K, typename V>
+void Red_black_tree<K, V>::remove(const K& k) {
+    // flag non defective tree by default
+    defective_tree = false;
+    // call the remove helper
+    root = remove(root, k);
+    // balance root black invariance
+    root->color = black;
+}
 
+// remove method: (private overload):
+// follows typical removal procedure of a node in a tree
+template<typename K, typename V>
+typename Red_black_tree<K, V>::Node* Red_black_tree<K, V>::remove(Node* N, const K& k) {
+    // if node is NIL return NIL
+    if (N == NIL) {
+        return NIL;
+    }
+    // traverse, replace accordingly (right)
+    if (N->key < k) {
+        N->right = delete(N->right, k);
+        return balance_remove(N, N->right);
+    }
+    // traverse, replace accordingly (left)
+    if (N->key > k) {
+        N->left = delete(N->left, k);
+        return balance_remove(N, N->left);
+    }
+
+    // Else case, key is equal and only right child exists
+    if (N->left == NIL) {
+        return remove_only_child_parent(N, N->right);
+    }
+
+    // Else case, key is equal and only left child exists
+    if (N->right == NIL) {
+        return remove_only_child_parent(N, N->left);
+    }
+
+    // Else case, both children exist, such that we call a subcase
+    // that accounts for both.
+    N->right = remove_stressed_parent(N->right, N);
+    return balance_remove(N, N->right);
+
+}
+
+// removes a node with at most one child
+template<typename K, typename V>
+typename Red_black_tree<K, V>::Node* Red_black_tree<K,V>::remove_only_child_parent(Node* P, Node* C) {
+    return NIL; // TODO (i am sleepy)
+}
+
+// removes a node with both children
+template<typename K, typename V>
+typename Red_black_tree<K, V>::Node* Red_black_tree<K,V>::remove_stressed_parent(Node* P, Node* C) {
+    return NIL; // TODO (i am sleepy)
+}
