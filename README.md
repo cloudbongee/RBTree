@@ -9,3 +9,6 @@ One good use of the red black tree is mathematics: great examples of optimized u
 
 ## What do you offer thus far? 
 Simply two files. Your header and your c++ file. All you require is to fire up the thinking caps, and brace for insertion, deletion, finding, removing.
+
+## Basic notions
+[Quick_RBTree_proofs.pdf](https://github.com/user-attachments/files/20378439/Quick_RBTree_proofs.pdf)
